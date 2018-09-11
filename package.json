@@ -21,7 +21,13 @@
   "homepage": "https://github.com/SgLy/kanano-server#readme",
   "dependencies": {
     "@types/koa": "^2.0.46",
-    "koa": "^2.5.3"
+    "@types/koa-bodyparser": "^5.0.1",
+    "@types/koa-route": "^3.2.4",
+    "koa": "^2.5.3",
+    "koa-bodyparser": "^4.2.1",
+    "koa-route": "^3.2.0",
+    "kuroshiro": "^1.1.1",
+    "kuroshiro-analyzer-kuromoji": "^1.1.0"
   },
   "devDependencies": {
     "typescript": "^3.0.3"

@@ -37,14 +37,65 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var Koa = require("koa");
+var route = require("koa-route");
+var bodyParser = require("koa-bodyparser");
+var Kuroshiro = require("kuroshiro");
+var KuromojiAnalyzer = require("kuroshiro-analyzer-kuromoji");
 var app = new Koa();
-app.use(function (ctx) { return __awaiter(_this, void 0, void 0, function () {
+app.use(bodyParser());
+var logger = function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        ctx.body = 'Hello world';
-        return [2 /*return*/];
+        switch (_a.label) {
+            case 0:
+                if (!(next !== undefined)) return [3 /*break*/, 2];
+                return [4 /*yield*/, next()];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2:
+                console.log(ctx.method + " " + ctx.url + " - " + (new Date().toString()));
+                return [2 /*return*/];
+        }
     });
-}); });
+}); };
+app.use(logger);
 var PORT = 3000;
-app.listen(PORT, function () {
-    console.log("Listening on " + PORT);
-});
+var kuroshiro = new Kuroshiro();
+var analyzer = new KuromojiAnalyzer();
+var translater = function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
+    var data, text, tokens;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!(next !== undefined)) return [3 /*break*/, 2];
+                return [4 /*yield*/, next()];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2:
+                data = ctx.request.body || { text: '' };
+                text = data['text'];
+                return [4 /*yield*/, analyzer.parse(text)];
+            case 3:
+                tokens = _a.sent();
+                ;
+                ctx.response.type = 'json';
+                ctx.response.body = { res: tokens };
+                return [2 /*return*/];
+        }
+    });
+}); };
+(function () { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, kuroshiro.init(analyzer)];
+            case 1:
+                _a.sent();
+                app.use(route.post('/api/translate', translater));
+                app.listen(PORT, function () {
+                    console.log("Listening on " + PORT);
+                });
+                return [2 /*return*/];
+        }
+    });
+}); })();
