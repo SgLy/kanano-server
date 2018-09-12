@@ -41,6 +41,7 @@ var Parser = /** @class */ (function () {
     function Parser() {
         this.kuroshiro = new Kuroshiro();
         this.analyzer = new KuromojiAnalyzer();
+        this.route = this.route.bind(this);
     }
     Parser.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -56,7 +57,7 @@ var Parser = /** @class */ (function () {
     };
     Parser.prototype.route = function (ctx, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var data, text, tokens;
+            var data, text, tokens, res;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -71,9 +72,22 @@ var Parser = /** @class */ (function () {
                         return [4 /*yield*/, this.analyzer.parse(text)];
                     case 3:
                         tokens = _a.sent();
-                        ;
+                        res = tokens.map(function (token) {
+                            var hasKanji = Kuroshiro.Util.hasKanji(token.surface_form);
+                            return {
+                                surface_form: token.surface_form,
+                                basic_form: token.basic_form,
+                                POS: {
+                                    main: token.pos,
+                                    detail: [token.pos_detail_1, token.pos_detail_2, token.pos_detail_3],
+                                },
+                                hasKanji: hasKanji,
+                                reading: hasKanji ? Kuroshiro.Util.kanaToHiragna(token.reading) : undefined,
+                                pronunciation: hasKanji ? Kuroshiro.Util.kanaToHiragna(token.pronunciation) : undefined,
+                            };
+                        });
                         ctx.response.type = 'json';
-                        ctx.response.body = { res: tokens };
+                        ctx.response.body = { res: res };
                         return [2 /*return*/];
                 }
             });

@@ -37,10 +37,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var Koa = require("koa");
-var route = require("koa-route");
-var bodyParser = require("koa-bodyparser");
 var app = new Koa();
+var bodyParser = require("koa-bodyparser");
 app.use(bodyParser());
+var route = require("koa-route");
 var logger = function (ctx, next) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
