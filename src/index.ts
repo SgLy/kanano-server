@@ -1,13 +1,12 @@
 import * as Koa from 'koa'
-import * as route from 'koa-route';
-import * as bodyParser from 'koa-bodyparser';
-
-import * as Kuroshiro from 'kuroshiro';
-import * as KuromojiAnalyzer from 'kuroshiro-analyzer-kuromoji';
-import { ComposedMiddleware } from 'koa-compose';
-
 const app = new Koa();
+
+import * as bodyParser from 'koa-bodyparser';
 app.use(bodyParser());
+
+import * as route from 'koa-route';
+
+import { ComposedMiddleware } from 'koa-compose';
 
 const logger: ComposedMiddleware<Koa.Context> = async (ctx, next) => {
   if (next !== undefined) await next();
@@ -15,26 +14,15 @@ const logger: ComposedMiddleware<Koa.Context> = async (ctx, next) => {
 };
 app.use(logger);
 
+import { Parser } from './parser';
+const parser = new Parser();
+
 const PORT = 3000;
 
-const kuroshiro = new Kuroshiro();
-const analyzer = new KuromojiAnalyzer();
-const translater: ComposedMiddleware<Koa.Context> = async (ctx, next) => {
-  if (next !== undefined) await next();
-  const data = ctx.request.body || { text: '' };
-  const text = data['text'];
-
-  // tokenize first
-  const tokens = await analyzer.parse(text);;
-
-  ctx.response.type = 'json';
-  ctx.response.body = { res: tokens };
-}
-
 (async () => {
-  await kuroshiro.init(analyzer);
+  await parser.init();
 
-  app.use(route.post('/api/translate', translater));
+  app.use(route.post('/api/parse', parser.route));
   
   app.listen(PORT, () => {
     console.log(`Listening on ${PORT}`);
