@@ -82,8 +82,8 @@ var Parser = /** @class */ (function () {
                                     detail: [token.pos_detail_1, token.pos_detail_2, token.pos_detail_3],
                                 },
                                 hasKanji: hasKanji,
-                                reading: hasKanji ? Kuroshiro.Util.kanaToHiragna(token.reading) : undefined,
-                                pronunciation: hasKanji ? Kuroshiro.Util.kanaToHiragna(token.pronunciation) : undefined,
+                                reading: hasKanji && token && token.reading ? Kuroshiro.Util.kanaToHiragna(token.reading) : undefined,
+                                pronunciation: hasKanji && token && token.pronunciation ? Kuroshiro.Util.kanaToHiragna(token.pronunciation) : undefined,
                             };
                         });
                         ctx.response.type = 'json';
