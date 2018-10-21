@@ -13,20 +13,16 @@ export class Parser {
     this.route = this.route.bind(this);
   }
 
-  async init() {
+  public async init() {
     await this.kuroshiro.init(this.analyzer)
   }
 
-  async route(ctx: Context, next: () => Promise<any>) {
-    if (next !== undefined) await next();
-    const data = ctx.request.body || { text: '' };
-    const text = data['text'];
-
+  private async parse(text) {
     // tokenize first
     const tokens = await this.analyzer.parse(text);
 
     // get needed infos
-    const res = tokens.map(token => {
+    return tokens.map(token => {
       const hasKanji = Kuroshiro.Util.hasKanji(token.surface_form);
       return {
         surface_form: token.surface_form,
@@ -40,6 +36,16 @@ export class Parser {
         pronunciation: hasKanji && token && token.pronunciation ? Kuroshiro.Util.kanaToHiragna(token.pronunciation) : undefined,
       };
     });
+  }
+
+  public async route(ctx: Context, next: () => Promise<any>) {
+    if (next !== undefined) await next();
+    const data = ctx.request.body || { text: '' };
+    const text = data['text'];
+
+    const res = await Promise.all(
+      text.split('\n').map(t => this.parse(t))
+    );
 
     ctx.response.type = 'json';
     ctx.response.body = { res };

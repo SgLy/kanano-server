@@ -55,9 +55,37 @@ var Parser = /** @class */ (function () {
             });
         });
     };
+    Parser.prototype.parse = function (text) {
+        return __awaiter(this, void 0, void 0, function () {
+            var tokens;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.analyzer.parse(text)];
+                    case 1:
+                        tokens = _a.sent();
+                        // get needed infos
+                        return [2 /*return*/, tokens.map(function (token) {
+                                var hasKanji = Kuroshiro.Util.hasKanji(token.surface_form);
+                                return {
+                                    surface_form: token.surface_form,
+                                    basic_form: token.basic_form,
+                                    POS: {
+                                        main: token.pos,
+                                        detail: [token.pos_detail_1, token.pos_detail_2, token.pos_detail_3],
+                                    },
+                                    hasKanji: hasKanji,
+                                    reading: hasKanji && token && token.reading ? Kuroshiro.Util.kanaToHiragna(token.reading) : undefined,
+                                    pronunciation: hasKanji && token && token.pronunciation ? Kuroshiro.Util.kanaToHiragna(token.pronunciation) : undefined,
+                                };
+                            })];
+                }
+            });
+        });
+    };
     Parser.prototype.route = function (ctx, next) {
         return __awaiter(this, void 0, void 0, function () {
-            var data, text, tokens, res;
+            var data, text, res;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -69,23 +97,9 @@ var Parser = /** @class */ (function () {
                     case 2:
                         data = ctx.request.body || { text: '' };
                         text = data['text'];
-                        return [4 /*yield*/, this.analyzer.parse(text)];
+                        return [4 /*yield*/, Promise.all(text.split('\n').map(function (t) { return _this.parse(t); }))];
                     case 3:
-                        tokens = _a.sent();
-                        res = tokens.map(function (token) {
-                            var hasKanji = Kuroshiro.Util.hasKanji(token.surface_form);
-                            return {
-                                surface_form: token.surface_form,
-                                basic_form: token.basic_form,
-                                POS: {
-                                    main: token.pos,
-                                    detail: [token.pos_detail_1, token.pos_detail_2, token.pos_detail_3],
-                                },
-                                hasKanji: hasKanji,
-                                reading: hasKanji && token && token.reading ? Kuroshiro.Util.kanaToHiragna(token.reading) : undefined,
-                                pronunciation: hasKanji && token && token.pronunciation ? Kuroshiro.Util.kanaToHiragna(token.pronunciation) : undefined,
-                            };
-                        });
+                        res = _a.sent();
                         ctx.response.type = 'json';
                         ctx.response.body = { res: res };
                         return [2 /*return*/];
